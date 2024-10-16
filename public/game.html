@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapShot Game</title>
+    <link rel="stylesheet" href="game.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- A 영역: 최고 기록 및 남은 병뚜껑 -->
+        <div id="score-panel" class="section">
+            <div id="distance-panel">
+                <h1>현재 거리</h1>
+                <p id="current-distance">0cm</p>
+            </div>
+            <hr />
+            <h1>최고 점수</h1>
+            <p id="best-score">0cm</p>
+            <p id="remaining">남은 병뚜껑</p>
+            <div id="caps-container">
+                <img src="bottlecap.png" class="cap-icon" id="cap1">
+                <img src="bottlecap.png" class="cap-icon" id="cap2">
+                <img src="bottlecap.png" class="cap-icon" id="cap3">
+            </div>
+        </div>
+
+        <!-- C 영역: 게임이 렌더링 되는 중앙 위치 -->
+        <div id="phaser-game"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+    <script src="../src/app.js"></script>
+
+    <script>
+        // 페이지가 로드되면 자동으로 Phaser 게임 실행
+        window.onload = function() {
+            startPhaserGame();  // app.js에 정의된 게임 시작 함수 호출
+        }
+    </script>
+</body>
+</html>

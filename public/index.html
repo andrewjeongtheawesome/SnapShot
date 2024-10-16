@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapShot Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 시작 화면 -->
+    <div class="start-screen">
+        <h1>SNAPSHOT</h1>
+        <button id="startButton">시작하기</button>
+    </div>
+
+    <script>
+        // 버튼 클릭 시 game.html 페이지로 이동
+        document.getElementById('startButton').addEventListener('click', function() {
+            window.location.href = 'game.html';  // game.html로 이동
+        });
+    </script>
+</body>
+</html>

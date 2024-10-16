@@ -1,0 +1,88 @@
+/* game-container는 게임 영역과 점수 패널을 감싸는 요소 */
+#game-container {
+    display: flex;
+    justify-content: space-around;  /* 섹션들 사이의 간격을 일정하게 설정 */
+    align-items: center;
+    height: 100vh; /* 화면 전체 높이 사용 */
+    width: 100vw; /* 화면 전체 너비 사용 */
+    margin: 0; /* 상하좌우 공백 제거 */
+    padding: 0; /* 패딩 제거 */
+    box-sizing: border-box;
+}
+
+/* 각 섹션에 대한 스타일 */
+.section {
+    display: flex;
+    flex-direction: column;  /* 세로로 정렬 */
+    align-items: flex-start;  /* 왼쪽 정렬 */
+    flex-basis: 100%;  /* 섹션의 너비 */
+    text-align: left;  /* 텍스트를 왼쪽 정렬 */
+    padding-left: 30px;  /* 좌측 패딩 */
+}
+
+/* Phaser 게임 컨테이너 스타일 */
+#phaser-game {
+    display: flex;
+    justify-content: center;  /* 가로 중앙 정렬 */
+    align-items: center;  /* 세로 중앙 정렬 */
+    width: 50%;  /* 가로 너비 */
+    height: 2000px;  /* 세로 전체 높이 */
+    margin: 0;  /* 자동으로 좌우 간격 설정 */
+    padding: 0;
+}
+
+/* 점수 패널 스타일 */
+#score-panel {
+    margin: 0;
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* 병뚜껑 아이콘 크기 */
+.cap-icon {
+    width: 40px;
+    height: 40px;
+    margin-right: 5px;
+}
+
+/* 폰트 크기와 스타일 */
+#score-panel h1 {
+    font-size: 3vw;  /* 텍스트 크기를 크게 설정 */
+    margin-bottom: 10px;
+}
+
+#score-panel p {
+    font-size: 2vw;  /* 텍스트 크기를 화면 크기에 맞춰 설정 */
+    margin: 5px 0;
+}
+
+#best-score {
+    font-size: 4em;  /* 최고 점수는 크게 표시 */
+    margin-bottom: 20px;
+}
+
+/* 병뚜껑 상태 */
+#caps-container {
+    margin-top: 20px;
+}
+
+/* 현재 거리 패널 */
+#distance-panel h1 {
+    font-size: 4vw;  /* 현재 거리 텍스트 크기 */
+    margin-bottom: 10px;
+}
+
+#current-distance {
+    font-size: 5em;  /* 실시간 거리 텍스트 */
+    margin-bottom: 20px;
+}
+
+/* 병뚜껑 상태 텍스트 */
+#remaining {
+    font-size: 1.5vw;
+}
+
+/* HTML body에서 공백 제거 */
+body {
+    margin: 0;
+    padding: 0;
+}
