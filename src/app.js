@@ -202,7 +202,7 @@ function update() {
 
         // 병뚜껑의 속도에 따라 회전 속도를 서서히 줄임
         let velocityMagnitude = bottleCap.body.velocity.length();  // 병뚜껑의 속도 크기
-        let angularDampeningFactor = 0.99;  // 회전 속도를 서서히 줄일 감속 계수
+        let angularDampeningFactor = 1.00;  // 회전 속도를 서서히 줄일 감속 계수
 
         // 병뚜껑이 이동 중일 때 서서히 회전 속도를 줄임
         if (velocityMagnitude > 15) {
