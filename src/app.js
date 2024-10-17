@@ -86,7 +86,7 @@ function create() {
     bottleCap.setInteractive();
     
     // 마찰력 추가
-    bottleCap.body.setDrag(370);  // X축과 Y축 모두에서 마찰력을 설정
+    bottleCap.body.setDrag(1000);  // X축과 Y축 모두에서 마찰력을 설정
     bottleCap.body.setBounce(0.8);  // 병뚜껑이 충돌 시 반동
 
     // 병뚜껑 개수, 최고 기록, 현재 위치 표시 바
@@ -115,6 +115,7 @@ function create() {
     });
 
     this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
+        // gameObject.setAngularVelocity(150);
         if (isDragging && dragY > slingshotAnchorY) {
             gameObject.x = dragX;
             gameObject.y = dragY;
@@ -126,9 +127,12 @@ function create() {
     this.input.on('dragend', function (pointer, gameObject) {
         if (isDragging) {
             // 병뚜껑을 당긴 반대 방향으로 속도 벡터를 설정
-            let velocityX = -(gameObject.x - slingshotAnchorX + 100) * 4;  // 좌우 방향 반전
-            let velocityY = (gameObject.y - slingshotAnchorY) * 4;  // 상하 방향 반전
+            let velocityX = -(gameObject.x - slingshotAnchorX + 100) * 6;  // 좌우 방향 반전
+            let velocityY = (gameObject.y - slingshotAnchorY) * 6;  // 상하 방향 반전
             gameObject.body.setVelocity(velocityX, -velocityY);  // 발사
+
+            // 병뚜껑 회전 추가 (날아가는 동안 회전)
+            gameObject.setAngularVelocity(100);  // 병뚜껑에 회전 효과 추가
 
             updateSlingshotLine(slingshotAnchorX, slingshotAnchorY);
             isDragging = false;
@@ -136,7 +140,7 @@ function create() {
             // 발사 직후 실시간으로 현재 거리 표시 시작
             let updateDistanceInterval = setInterval(() => {
                 let currentDistance = Math.abs(bottleCap.y - finishLineY);
-                document.getElementById('current-distance').innerText = `${currentDistance.toFixed(1)} cm`;
+                document.getElementById('current-distance').innerText = `${currentDistance.toFixed(3)} cm`;
                 
                 // 병뚜껑이 멈췄거나 게임이 종료되면 실시간 업데이트 중지
                 if (bottleCap.body.speed < 10 || gameOver) {
@@ -157,7 +161,7 @@ function handleBottleCapAction() {
     triesLeft -= 1;
     updateCapsUI();  // 병뚜껑 UI 업데이트
 
-    let distanceFromFinish = Math.abs(bottleCap.y - finishLineY);
+    let distanceFromFinish = Math.abs(bottleCap.y - finishLineY).toFixed(5);  // 소수점 5자리로 표시
     console.log(distanceFromFinish);
 
     // 최고 기록을 갱신할 때, 초기 값이거나 더 작은 값이 나오면 갱신
@@ -183,7 +187,18 @@ function update() {
     // 병뚜껑이 발사된 후에만 실시간으로 현재 병뚜껑과 결승선 간의 거리를 계산
     if (!isDragging && bottleCap.body.velocity.length() > 0) {
         let currentDistance = Math.abs(bottleCap.y - finishLineY);
-        document.getElementById('current-distance').innerText = `${currentDistance.toFixed(1)} cm`;  // 현재 거리 업데이트
+        document.getElementById('current-distance').innerText = `${currentDistance.toFixed(5)} cm`;  // 현재 거리 업데이트
+
+        // 병뚜껑의 속도에 따라 회전 속도를 서서히 줄임
+        let velocityMagnitude = bottleCap.body.velocity.length();  // 병뚜껑의 속도 크기
+        let angularDampeningFactor = 0.99;  // 회전 속도를 서서히 줄일 감속 계수
+
+        // 병뚜껑이 이동 중일 때 서서히 회전 속도를 줄임
+        if (velocityMagnitude > 15) {
+            bottleCap.setAngularVelocity(bottleCap.body.angularVelocity * angularDampeningFactor);
+        } else {
+            bottleCap.setAngularVelocity(0);  // 속도가 매우 느리면 회전을 완전히 멈춤
+        }
     }
 
     // A 부분의 안전 영역 범위 설정 (X 좌표와 Y 좌표 범위 지정)
@@ -201,7 +216,7 @@ function update() {
     }
 
     // 병뚜껑이 멈췄는지 확인 (병뚜껑이 속도가 매우 느리고 멈춘 상태이면 처리)
-    if (!isDragging && bottleCap.body.speed < 10 && !isBottleCapStopped && bottleCap.body.velocity.length() > 0) {
+    if (!isDragging && bottleCap.body.speed < 15 && !isBottleCapStopped && bottleCap.body.velocity.length() > 0) {
         // 병뚜껑이 테이블 안에 있고 멈추면 정상 처리
         isBottleCapStopped = true;
 
@@ -225,7 +240,7 @@ function updateCapsUI() {
 
 function updateBestScoreUI() {
     console.log(highestScore);
-    document.getElementById("best-score").textContent = `${highestScore.toFixed(1)} cm`;
+    document.getElementById("best-score").textContent = `${highestScore.toFixed(3)} cm`;
 }
 
 function handleBottleCapAction() {
@@ -268,21 +283,22 @@ function checkOutOfBounds() {
     return true;
 }
 
-
 // 병뚜껑 초기화
 function resetBottleCap(success) {
+    document.getElementById('current-distance').innerText = '0 cm';
     if (triesLeft <= 0) {
         endGame();  // 남은 병뚜껑이 없으면 게임 종료
     } else {
         bottleCap.setPosition(slingshotAnchorX - 100, bottleCapOriginalY);  // 초기 위치로 이동
         bottleCap.body.setVelocity(0, 0);  // 속도 초기화
+        bottleCap.setAngularVelocity(0);  // 회전 멈춤
+        bottleCap.setRotation(0);  // 회전 각도를 초기화
         isBottleCapStopped = false;
         isDragging = false;
         bottleCap.setInteractive();
         camera.startFollow(bottleCap);  // 카메라 재설정
     }
 }
-
 
 // 게임 종료
 function endGame() {
@@ -320,7 +336,7 @@ function handleOutOfBounds() {
     }
 
     // HTML에서 최고 기록을 업데이트
-    document.getElementById('best-score').innerText = `${highestScore.toFixed(1)} cm`;
+    document.getElementById('best-score').innerText = `${highestScore.toFixed(3)} cm`;
 
     // 다음 턴으로 넘어가기 위해 병뚜껑 초기화
     resetBottleCap(false);
