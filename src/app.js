@@ -22,8 +22,8 @@ function startPhaserGame() {
         scale: {
             mode: Phaser.Scale.FIT,
             autoCenter: Phaser.Scale.CENTER_BOTH,
-            width: window.innerWidth * 0.6,  // 화면의 60%만 사용하여 적절한 크기 확보
-            height: window.innerHeight * 1.0, // 세로 높이를 90%로 맞춤
+            width: 1000,  // 가로 길이 고정 (테이블 길이에 맞춤)
+            height: window.innerHeight,  // 세로 길이는 반응형으로 설정
         },
         parent: 'phaser-game',
         physics: {
@@ -40,9 +40,9 @@ function startPhaserGame() {
         }
     };
 
-    // Phaser 게임 인스턴스 생성
     new Phaser.Game(config);
 }
+
     
 function preload() {
     this.load.image('bottlecap', 'bottlecap.png');  // 병뚜껑 이미지 불러오기
@@ -59,30 +59,34 @@ function create() {
     this.cameras.main.setBackgroundColor('#ffffff');
     
     // 테이블 이미지 스케일을 조정하여 테이블 크기에 맞게 확장
-    let table = this.add.image(500, tableHeight / 2, 'table');  // 테이블 이미지 배치
-    table.setScale(1, tableHeight / table.height);  // 테이블 이미지를 높이에 맞게 스케일링
+    // let table = this.add.image(500, tableHeight / 2, 'table');  // 테이블 이미지 배치
+    // table.setScale(1, tableHeight / table.height);  // 테이블 이미지를 높이에 맞게 스케일링
+
+    // 테이블 이미지 스케일을 조정하여 테이블 크기에 맞게 확장
+    let table = this.add.image(500, tableHeight / 2, 'table');
+    table.setScale(window.innerWidth / table.width, tableHeight / table.height);  // 가로와 세로 스케일 모두 맞춤
 
     // graphics 객체 선언
     let graphics = this.add.graphics(); // 안전 영역과 테이블을 그릴 수 있도록 graphics 선언
 
     // 안전 영역을 진한 회색으로 그리기
-    graphics.fillStyle(0x4F4F4F, 1);  // 진한 회색
-    let safeZoneX1 = 50; // A 부분의 왼쪽 X 좌표
-    let safeZoneX2 = 950; // A 부분의 오른쪽 X 좌표
+    graphics.fillStyle(0x919497, 1);  // 진한 회색
+    let safeZoneX1 = 0; // A 부분의 왼쪽 X 좌표
+    let safeZoneX2 = 1000; // A 부분의 오른쪽 X 좌표
     let safeZoneY1 = tableHeight; // A 부분의 상단 Y 좌표
     let safeZoneY2 = tableHeight + 1000; // A 부분의 하단 Y 좌표 (여유 공간)
 
     graphics.fillRect(safeZoneX1, safeZoneY1, safeZoneX2 - safeZoneX1, safeZoneY2 - safeZoneY1);  // 안전 영역 그리기
 
     // 병뚜껑 및 새총의 위치 설정 (테이블 하단에 위치하도록 조정)
-    this.add.image(500, 3000, 'table');  // 테이블 이미지 배경 설정
+    //this.add.image(500, 3000, 'table');  // 테이블 이미지 배경 설정
     bottleCap = this.physics.add.sprite(slingshotAnchorX - 100, bottleCapOriginalY, 'bottlecap');
     bottleCap.setScale(0.1);
     bottleCap.setCollideWorldBounds(false);  // 테이블 끝에서 벗어날 수 있도록 설정
     bottleCap.setInteractive();
     
     // 마찰력 추가
-    bottleCap.body.setDrag(420);  // X축과 Y축 모두에서 마찰력을 설정
+    bottleCap.body.setDrag(370);  // X축과 Y축 모두에서 마찰력을 설정
     bottleCap.body.setBounce(0.8);  // 병뚜껑이 충돌 시 반동
 
     // 병뚜껑 개수, 최고 기록, 현재 위치 표시 바
@@ -145,7 +149,7 @@ function create() {
 
     // 점수 계산을 위한 끝 라인 설정 (테이블 상단)
     let finishLineY = 50;  // 끝 라인의 Y 좌표 (화면 위쪽)
-    let finishLine = this.add.line(500, finishLineY, 0, 0, 900, 0, 0xff0000);  // 빨간색으로 라인 표시
+    let finishLine = this.add.line(400, finishLineY, 0, 0, 1200, 0, 0xff0000);  // 빨간색으로 라인 표시
 }
 
 // 병뚜껑 멈춤 후 2초 후에 다음 턴으로 넘어가는 코드
@@ -211,8 +215,6 @@ function update() {
     }
 }
 
-
-
 function updateCapsUI() {
     let caps = document.querySelectorAll(".cap-icon");
     // 남은 병뚜껑의 개수보다 많은 병뚜껑 아이콘이 있다면 숨김 처리
@@ -220,7 +222,6 @@ function updateCapsUI() {
         caps[caps.length - triesLeft - 1].style.visibility = 'hidden';
     }
 }
-
 
 function updateBestScoreUI() {
     console.log(highestScore);
@@ -253,19 +254,20 @@ function handleBottleCapAction() {
 
 // 낙 처리 범위를 확인하는 함수
 function checkOutOfBounds() {
-    let safeZoneX1 = 200; // A 부분의 왼쪽 X 좌표
-    let safeZoneX2 = 900; // A 부분의 오른쪽 X 좌표
-    let safeZoneY1 = tableHeight; // A 부분의 상단 Y 좌표
-    let safeZoneY2 = tableHeight + 100; // A 부분의 하단 Y 좌표
+    let safeZoneX1 = 0; // 안전 구역의 왼쪽 X 좌표 (왼쪽 끝까지 허용)
+    let safeZoneX2 = 1000; // 안전 구역의 오른쪽 X 좌표
+    let safeZoneY1 = tableHeight; // 안전 구역의 상단 Y 좌표
+    let safeZoneY2 = tableHeight + 1000; // 안전 구역의 하단 Y 좌표
 
-    // 병뚜껑이 A 부분의 사각형 범위 내에 있으면 낙 처리하지 않음
+    // 병뚜껑이 안전 구역 내에 있으면 낙 처리하지 않음
     if (bottleCap.x >= safeZoneX1 && bottleCap.x <= safeZoneX2 && bottleCap.y >= safeZoneY1 && bottleCap.y <= safeZoneY2) {
-        return false; // 낙 처리를 하지 않음
+        return false; // 안전 구역 안에 있으면 낙 처리하지 않음
     }
 
-    // 그 외의 경우는 낙 처리
+    // 그 외의 경우 낙 처리
     return true;
 }
+
 
 // 병뚜껑 초기화
 function resetBottleCap(success) {
