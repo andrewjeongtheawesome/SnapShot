@@ -20,10 +20,10 @@ function startPhaserGame() {
     let config = {
         type: Phaser.AUTO,
         scale: {
-            mode: Phaser.Scale.FIT,  // 화면 크기에 맞추되 비율을 유지
-            autoCenter: Phaser.Scale.CENTER_BOTH,  // 게임을 화면 중앙에 맞춤
-            width: 1000,  // 기본 가로 해상도 (조정 가능)
-            height: 800   // 기본 세로 해상도 (조정 가능)
+            mode: Phaser.Scale.FIT,
+            autoCenter: Phaser.Scale.CENTER_BOTH,
+            width: window.innerWidth * 0.6,  // 화면의 60%만 사용하여 적절한 크기 확보
+            height: window.innerHeight * 1.0, // 세로 높이를 90%로 맞춤
         },
         parent: 'phaser-game',
         physics: {

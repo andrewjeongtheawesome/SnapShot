@@ -1,12 +1,13 @@
 /* game-container는 게임 영역과 점수 패널을 감싸는 요소 */
+/* game-container 수정 */
 #game-container {
     display: flex;
-    justify-content: space-around;  /* 섹션들 사이의 간격을 일정하게 설정 */
-    align-items: center;
-    height: 100vh; /* 화면 전체 높이 사용 */
-    width: 100vw; /* 화면 전체 너비 사용 */
-    margin: 0; /* 상하좌우 공백 제거 */
-    padding: 0; /* 패딩 제거 */
+    justify-content: space-between; /* 섹션들 사이에 간격 추가 */
+    align-items: flex-start;
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0px; /* 패딩을 추가하여 여백 생성 */
     box-sizing: border-box;
 }
 
@@ -14,21 +15,27 @@
 .section {
     display: flex;
     flex-direction: column;  /* 세로로 정렬 */
-    align-items: flex-start;  /* 왼쪽 정렬 */
+    align-items: center;  /* 중앙 정렬로 변경 */
     flex-basis: 100%;  /* 섹션의 너비 */
-    text-align: left;  /* 텍스트를 왼쪽 정렬 */
-    padding-left: 30px;  /* 좌측 패딩 */
+    text-align: center;  /* 텍스트를 중앙 정렬 */
+    padding-left: 0px;  /* 좌측 패딩 제거 */
 }
 
-/* Phaser 게임 컨테이너 스타일 */
 #phaser-game {
     display: flex;
-    justify-content: center;  /* 가로 중앙 정렬 */
-    align-items: center;  /* 세로 중앙 정렬 */
-    width: 50%;  /* 가로 너비 */
-    height: 2000px;  /* 세로 전체 높이 */
-    margin: 0;  /* 자동으로 좌우 간격 설정 */
+    justify-content: center;
+    align-items: center;
+    width: 100%;  /* 가로 너비를 100%로 확장 */
+    height: 100vh;  /* 세로 높이를 전체 화면 높이로 설정 */
+    margin: 0;
     padding: 0;
+}
+
+/* canvas를 100%로 설정 */
+canvas {
+    width: 1147px;
+    height: 100%;
+    display: block;  /* 추가적으로 스크롤바가 나타나지 않도록 block 설정 */
 }
 
 /* 점수 패널 스타일 */
@@ -46,8 +53,9 @@
 
 /* 폰트 크기와 스타일 */
 #score-panel h1 {
-    font-size: 3vw;  /* 텍스트 크기를 크게 설정 */
+    font-size: 28pt;  /* C: 최고 점수 텍스트 크기 */
     margin-bottom: 10px;
+    text-align: center;
 }
 
 #score-panel p {
@@ -56,29 +64,45 @@
 }
 
 #best-score {
-    font-size: 4em;  /* 최고 점수는 크게 표시 */
+    font-size: 44pt;  /* D: 최고 점수 값 */
+    font-weight: bold;
     margin-bottom: 20px;
+    text-align: center;
 }
 
 /* 병뚜껑 상태 */
 #caps-container {
     margin-top: 20px;
+    display: flex;
+    justify-content: center;  /* 병뚜껑 아이콘 중앙 정렬 */
 }
 
 /* 현재 거리 패널 */
 #distance-panel h1 {
-    font-size: 4vw;  /* 현재 거리 텍스트 크기 */
+    font-size: 48pt;  /* A: 현재 거리 텍스트 크기 */
     margin-bottom: 10px;
+    text-align: center;
 }
 
 #current-distance {
-    font-size: 5em;  /* 실시간 거리 텍스트 */
-    margin-bottom: 20px;
+    font-size: 72pt;  /* B: 현재 거리 값 */
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+/* 선 추가 */
+hr {
+    width: 80%;
+    margin: 10px auto; /* 선 위아래로 10px 간격 */
+    border: 1px solid black;
 }
 
 /* 병뚜껑 상태 텍스트 */
 #remaining {
-    font-size: 1.5vw;
+    font-size: 24pt;  /* E: 남은 병뚜껑 텍스트 크기 */
+    text-align: center;
+    margin-top: 20px;
 }
 
 /* HTML body에서 공백 제거 */
