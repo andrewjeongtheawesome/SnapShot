@@ -13,7 +13,7 @@ let slingshotAnchorX = 600;  // 새총 기준 위치
 let slingshotAnchorY = tableHeight - 50;  // 새총 기준 높이
 let bottleCapOriginalY = tableHeight - 200;  // 병뚜껑 위치
 let finishLineY = 50;  // 끝 라인의 Y 좌표를 전역으로 선언
-
+let pullSound, releaseSound, endSound, fallSound;
 
 // Phaser 게임 설정
 function startPhaserGame() {
@@ -45,6 +45,10 @@ function startPhaserGame() {
 
     
 function preload() {
+    this.load.audio('pull', 'pull.mp3');  // 새총을 당길 때
+    this.load.audio('release', 'release.mp3');  // 새총을 놓을 때
+    this.load.audio('end', 'end.mp3');  // 병뚜껑이 멈출 때
+    this.load.audio('fall', 'fall.mp3');  // 병뚜껑이 테이블 밖으로 나갔을 때
     this.load.image('bottlecap', 'bottlecap.png');  // 병뚜껑 이미지 불러오기
     this.load.image('table', 'table.jpg');  // 테이블 이미지
     this.load.image('bolt', 'bolt.png');
@@ -54,6 +58,11 @@ let gameOver = false;  // 게임 종료 여부
 
 function create() {
     gameScene = this;  // 전역 변수로 장면 컨텍스트 저장
+
+    pullSound = this.sound.add('pull');
+    releaseSound = this.sound.add('release');
+    endSound = this.sound.add('end');
+    fallSound = this.sound.add('fall');
 
     // 배경을 흰색으로 설정
     this.cameras.main.setBackgroundColor('#ffffff');
@@ -112,6 +121,7 @@ function create() {
 
     this.input.on('dragstart', function (pointer, gameObject) {
         isDragging = true;
+        pullSound.play();
     });
 
     this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
@@ -125,6 +135,7 @@ function create() {
 
     // 병뚜껑 드래그 및 발사
     this.input.on('dragend', function (pointer, gameObject) {
+        releaseSound.play()
         if (isDragging) {
             // 병뚜껑을 당긴 반대 방향으로 속도 벡터를 설정
             let velocityX = -(gameObject.x - slingshotAnchorX + 100) * 6;  // 좌우 방향 반전
@@ -219,6 +230,7 @@ function update() {
     if (!isDragging && bottleCap.body.speed < 15 && !isBottleCapStopped && bottleCap.body.velocity.length() > 0) {
         // 병뚜껑이 테이블 안에 있고 멈추면 정상 처리
         isBottleCapStopped = true;
+        endSound.play();
 
         // 2초 후에 다음 턴으로 넘어가는 타이머 설정
         setTimeout(() => {
@@ -314,14 +326,14 @@ function endGame() {
     // 2초 후에 result.html로 이동
     setTimeout(function() {
         window.location.href = 'result.html';
-    }, 1000);  // 2초 동안 대기 후 페이지 이동
+    }, 2000);  // 2초 동안 대기 후 페이지 이동
 }
 
 // 병뚜껑이 테이블 밖으로 나갔을 때 처리하는 함수
 function handleOutOfBounds() {
     // 병뚜껑 개수 줄이기
     triesLeft -= 1;
-
+    fallSound.play()
     // 병뚜껑 아이콘 업데이트
     let capIcon = document.getElementById(`cap${triesLeft + 1}`);
     if (capIcon) {
