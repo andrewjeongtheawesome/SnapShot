@@ -334,6 +334,10 @@ function handleOutOfBounds() {
     // 병뚜껑 개수 줄이기
     triesLeft -= 1;
     fallSound.play()
+
+    // 기록을 0으로 초기화
+    document.getElementById('current-distance').innerText = '0 cm'; 
+
     // 병뚜껑 아이콘 업데이트
     let capIcon = document.getElementById(`cap${triesLeft + 1}`);
     if (capIcon) {
