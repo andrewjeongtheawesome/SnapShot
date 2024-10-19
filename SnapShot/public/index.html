@@ -9,7 +9,7 @@
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js";
         
         // Your web app's Firebase configuration
@@ -36,13 +36,27 @@
                     department: department,
                     studentId: studentId,
                     name: name,
+                    hasPlayed: true //사용자가 게임을 시작 여부 기록
                 });
                 console.log('Data saved successfully');
             } catch (error) {
                 console.error('Error saving data: ', error);
             }
         }
+        
+        async function hasUserPlayed(studentId) {
+            const userRef = doc(db, "users", studentId);
+            const userDoc = await getDoc(userRef);
+
+            if (userDoc.exists() && userDoc.data().hasPlayed) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
         window.saveUserData = saveUserData;
+        window.hasUserPlayed = hasUserPlayed;
       </script>
 </head>
 <body>
@@ -93,7 +107,7 @@
         */
 
         //제출 확인 이벤트
-        document.getElementById('user-form').addEventListener('submit', function(event) {
+        document.getElementById('user-form').addEventListener('submit', async function(event) {
             event.preventDefault();
 
             let valid = true; //유효성 검사 결과 저장
@@ -121,12 +135,21 @@
 
             //제출 중단
             if (valid) {
-                document.querySelector('.container').style.display = 'none';
-                document.getElementById('game-container').style.display = 'block';
+                const hasPlayed = await hasUserPlayed(studentId);
 
-                saveUserData(selectedDepartment, studentId, name);
-                startGame(); // 게임 시작 함수 호출
+                if (hasPlayed) {
+                    // 입력 폼을 다시 보여줌
+                    document.querySelector('.container').style.display = 'block';
+                    document.getElementById('game-container').style.display = 'none';
+                    alert("게임은 한 계정당 한 번만 가능합니다.");
+                } else {
+                    document.querySelector('.container').style.display = 'none';
+                    document.getElementById('game-container').style.display = 'block';
+
+                    saveUserData(selectedDepartment, studentId, name); // 데이터 저장
+                    startGame(); // 게임 시작 함수 호출
                 }
+            }
         });
     </script>
 </body>
