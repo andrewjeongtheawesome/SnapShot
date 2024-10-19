@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SnapShot Game</title>
     <link rel="stylesheet" href="game.css">
+    
 </head>
 <body>
     <div id="game-container">
@@ -29,16 +30,20 @@
         </div>
 
         <!-- C 영역: 게임이 렌더링 되는 중앙 위치 -->
-        <div id="phaser-game"></div>
+        <div id="phaser-game" style="width: 100%; height: 600px;"></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
-    <script src="../src/app.js"></script>
+    <script type="module" src="../src/app.js"></script>
 
     <script>
         // 페이지가 로드되면 자동으로 Phaser 게임 실행
         window.onload = function() {
-            startPhaserGame();  // app.js에 정의된 게임 시작 함수 호출
+            if (typeof startPhaserGame === 'function') {
+                startPhaserGame();  // app.js에 정의된 게임 시작 함수 호출
+            } else {
+                console.error('startPhaserGame is not defined.');
+            }
         }
     </script>
 </body>

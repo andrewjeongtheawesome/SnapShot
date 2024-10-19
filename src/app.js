@@ -15,6 +15,25 @@ let bottleCapOriginalY = tableHeight - 200;  // 병뚜껑 위치
 let finishLineY = 50;  // 끝 라인의 Y 좌표를 전역으로 선언
 let pullSound, releaseSound, endSound, fallSound;
 
+// Firebase 설정
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+// Firebase 설정
+const firebaseConfig = {
+  apiKey: "AIzaSyAZX7_fPX0B_-EA-OGvW6KmalFOGsQ3ZQU",
+  authDomain: "snapshot-4ad8f.firebaseapp.com",
+  projectId: "snapshot-4ad8f",
+  storageBucket: "snapshot-4ad8f.appspot.com",
+  messagingSenderId: "1004891389072",
+  appId: "1:1004891389072:web:35514d2ddafce071a42c15",
+  measurementId: "G-1CZJZJRGG3"
+};
+
+// Firebase 초기화
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 // Phaser 게임 설정
 function startPhaserGame() {
     let config = {
@@ -323,10 +342,28 @@ function endGame() {
     bottleCap.disableInteractive();  
     camera.stopFollow();  // 카메라 멈춤
 
+    // Firebase에 점수 저장
+    saveGameResult(score);
+
     // 2초 후에 result.html로 이동
     setTimeout(function() {
         window.location.href = 'result.html';
     }, 2000);  // 2초 동안 대기 후 페이지 이동
+}
+
+async function saveGameResult(score) {
+    const studentId = document.getElementById('student-id').value;
+    const name = document.getElementById('name').value;
+
+    try {
+        await setDoc(doc(db, "scores", studentId), {
+            name: name,
+            score: score
+        });
+        console.log('Score saved successfully');
+    } catch (error) {
+        console.error('Error saving score: ', error);
+    }
 }
 
 // 병뚜껑이 테이블 밖으로 나갔을 때 처리하는 함수

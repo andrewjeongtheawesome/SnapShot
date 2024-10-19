@@ -89,6 +89,12 @@ hr {
     border: 1px solid black;
 }
 
+/* 게임이 렌더링되는 영역 스타일 */
+#phaser-game {
+    width: 100%;   /* 게임 화면의 너비를 100%로 설정 */
+    height: 100vh; /* 화면 높이를 창 높이에 맞춤 */
+}
+
 /* #phaser-game {
     flex: 1;
 } */

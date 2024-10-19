@@ -3,9 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>SnapShot Result</title>
+    <link rel="stylesheet" href="style.css">
+
+    <script type="module">
+        // Firebase SDK 가져오기
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+        
+        // Firebase 설정
+        const firebaseConfig = {
+          apiKey: "AIzaSyAZX7_fPX0B_-EA-OGvW6KmalFOGsQ3ZQU",
+          authDomain: "snapshot-4ad8f.firebaseapp.com",
+          projectId: "snapshot-4ad8f",
+          storageBucket: "snapshot-4ad8f.appspot.com",
+          messagingSenderId: "1004891389072",
+          appId: "1:1004891389072:web:35514d2ddafce071a42c15",
+          measurementId: "G-1CZJZJRGG3"
+        };
+      
+        // Firebase 초기화
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 점수 불러오기 및 표시 함수
+        async function loadRanking() {
+            const scoresRef = collection(db, "scores");
+            const q = query(scoresRef, orderBy("score", "desc"));  // 점수를 내림차순으로 정렬
+            const querySnapshot = await getDocs(q);
+
+            let rankingList = '';
+            querySnapshot.forEach((doc, index) => {
+                const { name, score } = doc.data();
+                rankingList += `<li>${index + 1}. ${name}: ${score}점</li>`;
+            });
+
+            document.getElementById('ranking-list').innerHTML = rankingList;
+        }
+
+        window.onload = loadRanking;  // 페이지 로드 시 랭킹 로드
+    </script>
 </head>
 <body>
-    <p>hello, world</p>
+    <div class="container">
+        <h1>게임 랭킹</h1>
+        <ul id="ranking-list">
+            <!-- Firebase에서 데이터를 불러와 여기에 표시 -->
+        </ul>
+        <button onclick="window.location.href='game.html'">다시 하기</button>
+    </div>
 </body>
 </html>
