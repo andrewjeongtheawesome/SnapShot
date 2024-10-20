@@ -64,32 +64,32 @@ body {
 #your-record-name {
     font-family: 'Noto Sans KR', sans-serif;
     font-size: 1.5vw;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
     font-weight: normal;
 }
 
 #your-score {
     font-family: 'Noto Sans KR', sans-serif;
     font-size: 2.5vw;
-    margin-bottom: 50px;
+    margin-bottom: 40px;
 }
 
 #your-rank-name {
     font-family: 'Noto Sans KR', sans-serif;
     font-size: 1vw;
-    margin-bottom: 20px;
+    margin-bottom: 5px;
     font-weight: normal;
 }
 
 #your-rank {
     font-family: 'Noto Sans KR', sans-serif;
     font-size: 3vw;
-    margin-bottom: 20px;
+    margin-bottom: 40px;
 }
 
 #ranking {
     font-family: 'Noto Sans KR', sans-serif;
-    font-size: 3vw;
+    font-size: 2vw;
     margin-bottom: 20px;
 }
 
@@ -145,6 +145,10 @@ sup {
 
 .ranking-table tr:hover {
     background-color: #f1f1f1;
+}
+
+#id{
+    margin-top: 80px;
 }
 
 /* 미디어 쿼리를 통한 반응형 디자인 */
