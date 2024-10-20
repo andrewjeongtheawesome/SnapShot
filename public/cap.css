@@ -1,0 +1,56 @@
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f9f9f9;
+}
+
+.container {
+    text-align: center;
+    width: 80%;
+    max-width: 800px;
+}
+
+.cap-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.cap-display {
+    width: 250px;
+    height: 250px;
+}
+
+.cap-display img {
+    width: 100%;
+    height: auto;
+}
+
+.nav-btn {
+    font-size: 30px;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.cap-description {
+    margin-top: 20px;
+}
+
+button#select-cap-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button#select-cap-btn:hover {
+    background-color: #45a049;
+}

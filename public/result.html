@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SnapShot Result</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="result.css">
 
     <script type="module">
         // Firebase SDK 가져오기
@@ -28,14 +28,18 @@
 
         // 점수 불러오기 및 표시 함수
         async function loadRanking() {
-            const scoresRef = collection(db, "scores");
-            const q = query(scoresRef, orderBy("score", "desc"));  // 점수를 내림차순으로 정렬
+            const scoresRef = collection(db, "users"); // users 컬렉션에서 점수 불러옴
+            const q = query(scoresRef, orderBy("highestScore", "asc"));  // 최고 기록 기준으로 내림차순 정렬
             const querySnapshot = await getDocs(q);
 
             let rankingList = '';
             querySnapshot.forEach((doc, index) => {
-                const { name, score } = doc.data();
-                rankingList += `<li>${index + 1}. ${name}: ${score}점</li>`;
+                const { name, highestScore } = doc.data();
+                rankingList += `<tr>
+                                  <td>${index + 1}</td>
+                                  <td>${name}</td>
+                                  <td>${highestScore.toFixed(3)} cm</td>
+                                </tr>`;
             });
 
             document.getElementById('ranking-list').innerHTML = rankingList;
@@ -47,10 +51,23 @@
 <body>
     <div class="container">
         <h1>게임 랭킹</h1>
-        <ul id="ranking-list">
-            <!-- Firebase에서 데이터를 불러와 여기에 표시 -->
-        </ul>
-        <button onclick="window.location.href='game.html'">다시 하기</button>
+
+        <!-- 순위와 기록을 표시하는 테이블 -->
+        <table id="ranking-table" border="1" cellspacing="0" cellpadding="5">
+            <thead>
+                <tr>
+                    <th>순위</th>
+                    <th>이름</th>
+                    <th>기록</th>
+                </tr>
+            </thead>
+            <tbody id="ranking-list">
+                <!-- Firebase에서 데이터를 불러와 여기에 표시 -->
+            </tbody>
+        </table>
+
+        <!-- 다시하기 버튼 -->
+        <button onclick="window.location.href='index.html'">다시 하기</button>
     </div>
 </body>
 </html>

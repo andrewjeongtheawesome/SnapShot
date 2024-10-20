@@ -3,20 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SnapShot Game</title>
+    <title>SnapShot</title>
     <link rel="stylesheet" href="style.css">
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js";
+        
+        const firebaseConfig = {
+          apiKey: "AIzaSyAZX7_fPX0B_-EA-OGvW6KmalFOGsQ3ZQU",
+          authDomain: "snapshot-4ad8f.firebaseapp.com",
+          projectId: "snapshot-4ad8f",
+          storageBucket: "snapshot-4ad8f.appspot.com",
+          messagingSenderId: "1004891389072",
+          appId: "1:1004891389072:web:35514d2ddafce071a42c15",
+          measurementId: "G-1CZJZJRGG3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const analytics = getAnalytics(app);
+
+        async function saveUserData(department, studentId, name) {
+            try {
+                await setDoc(doc(db, "users", studentId), {
+                    department: department,
+                    studentId: studentId,
+                    name: name,
+                    hasPlayed: false,  
+                    highestScore: 0,
+                });
+                console.log('Data saved successfully');
+                return true; // 데이터 저장 성공
+            } catch (error) {
+                console.error('Error saving data: ', error);
+                return false; // 데이터 저장 실패
+            }
+        }
+
+        async function hasUserPlayed(studentId) {
+            const userRef = doc(db, "users", studentId);
+            const userDoc = await getDoc(userRef);
+
+            if (userDoc.exists() && userDoc.data().hasPlayed) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        window.saveUserData = saveUserData;
+        window.hasUserPlayed = hasUserPlayed;
+    </script>
 </head>
+
 <body>
-    <!-- 시작 화면 -->
-    <div class="start-screen">
+    <div class="container">
         <h1>SNAPSHOT</h1>
-        <button id="startButton">시작하기</button>
+        <form id="user-form">
+            <select id="department">
+                <option value="" disabled selected>학과를 선택하세요</option>
+                <option value="컴퓨터소프트웨어공학과">컴퓨터소프트웨어공학과</option>
+                <option value="정보보호학과">정보보호학과</option>
+                <option value="의료IT공학과">의료IT공학과</option>
+                <option value="AI 빅데이터학과">AI 빅데이터학과</option>
+                <option value="사물인터넷학과">사물인터넷학과</option>
+                <option value="메타버스&게임학과">메타버스&게임학과</option>
+                <option value="other">기타 (직접 입력)</option>
+            </select>
+            <input type="text" id="other-department" placeholder="학과 직접 입력" style="display:none;">
+            <input type="text" id="student-id" placeholder="학번" required>
+            <input type="text" id="name" placeholder="이름" required>
+            <button type="submit" id="start-btn">시작하기</button>
+        </form>
     </div>
 
-    <script>
-        // 버튼 클릭 시 game.html 페이지로 이동
-        document.getElementById('startButton').addEventListener('click', function() {
-            window.location.href = 'game.html';  // game.html로 이동
+    <script type="module">
+        // 학과 선택 이벤트
+        document.getElementById('department').addEventListener('change', function() {
+            const otherDepartmentInput = document.getElementById('other-department');
+            otherDepartmentInput.style.display = (this.value === 'other') ? 'block' : 'none';
+        });
+
+        // 폼 제출 이벤트 처리
+        document.getElementById('user-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            let valid = true; 
+
+            const department = document.getElementById('department').value;
+            const otherDepartment = document.getElementById('other-department').value;
+            const studentId = document.getElementById('student-id').value;
+            const name = document.getElementById('name').value;
+
+            const selectedDepartment = department === 'other' ? otherDepartment : department;
+
+            // 유효성 검사
+            if (!selectedDepartment) {
+                alert('학과를 선택해 주세요.');
+                valid = false;
+            }
+            if (!/^\d{8}$/.test(studentId)) {
+                alert('학번은 8자리 숫자여야 합니다.');
+                valid = false;
+            }
+            if (!name) {
+                alert('이름을 입력해 주세요.');
+                valid = false;
+            }
+
+            if (valid) {
+                const hasPlayed = await hasUserPlayed(studentId);
+
+                if (hasPlayed) {
+                    alert("게임은 한 계정당 한 번만 가능합니다.");
+                } else {
+                    const dataSaved = await saveUserData(selectedDepartment, studentId, name);
+
+                    if (dataSaved) {
+                        // 데이터베이스에 저장 성공 시
+                        localStorage.setItem('studentId', studentId);  // 학번 저장
+                        window.location.href = 'capChoose.html';  // 게임 페이지로 리디렉션
+                    } else {
+                        alert("데이터를 저장하는 동안 문제가 발생했습니다. 다시 시도해 주세요.");
+                    }
+                }
+            }
         });
     </script>
 </body>

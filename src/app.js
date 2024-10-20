@@ -1,12 +1,15 @@
+// Firestore 초기화 (index.html에서 이미 firebase가 초기화되었으므로, 바로 사용)
+import { auth, db } from '../src/firebaseConfig.js';
+
 let bottleCap;
 let triesLeft = 3;  // 병뚜껑 남은 개수
-let highestScore = 0;  // 최고 기록
+let highestScore = 10000;  // 최고 기록
 let isDragging = false;
 let slingshotLine;
-let miniMapCap;
 let camera;
 let isBottleCapStopped = false;
 let gameScene;
+let selectedCap = localStorage.getItem('selectedCap'); // 선택된 병뚜껑 이름 불러오기
 
 let tableHeight = 4000;  // 테이블 높이를 상단에서 바로 초기화
 let slingshotAnchorX = 600;  // 새총 기준 위치
@@ -14,25 +17,6 @@ let slingshotAnchorY = tableHeight - 50;  // 새총 기준 높이
 let bottleCapOriginalY = tableHeight - 200;  // 병뚜껑 위치
 let finishLineY = 50;  // 끝 라인의 Y 좌표를 전역으로 선언
 let pullSound, releaseSound, endSound, fallSound;
-
-// Firebase 설정
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
-
-// Firebase 설정
-const firebaseConfig = {
-  apiKey: "AIzaSyAZX7_fPX0B_-EA-OGvW6KmalFOGsQ3ZQU",
-  authDomain: "snapshot-4ad8f.firebaseapp.com",
-  projectId: "snapshot-4ad8f",
-  storageBucket: "snapshot-4ad8f.appspot.com",
-  messagingSenderId: "1004891389072",
-  appId: "1:1004891389072:web:35514d2ddafce071a42c15",
-  measurementId: "G-1CZJZJRGG3"
-};
-
-// Firebase 초기화
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
 
 // Phaser 게임 설정
 function startPhaserGame() {
@@ -59,18 +43,20 @@ function startPhaserGame() {
         }
     };
 
+    console.log(selectedCap);
     new Phaser.Game(config);
 }
 
-    
+
 function preload() {
-    this.load.audio('pull', 'pull.mp3');  // 새총을 당길 때
-    this.load.audio('release', 'release.mp3');  // 새총을 놓을 때
-    this.load.audio('end', 'end.mp3');  // 병뚜껑이 멈출 때
-    this.load.audio('fall', 'fall.mp3');  // 병뚜껑이 테이블 밖으로 나갔을 때
-    this.load.image('bottlecap', 'bottlecap.png');  // 병뚜껑 이미지 불러오기
-    this.load.image('table', 'table.jpg');  // 테이블 이미지
-    this.load.image('bolt', 'bolt.png');
+    this.load.audio('pull', 'sounds/pull.mp3');  // 새총을 당길 때
+    this.load.audio('release', 'sounds/release.mp3');  // 새총을 놓을 때
+    this.load.audio('end', 'sounds/end.mp3');  // 병뚜껑이 멈출 때
+    this.load.audio('fall', 'sounds/fall.mp3');  // 병뚜껑이 테이블 밖으로 나갔을 때
+    const selectedCap = localStorage.getItem('selectedCap'); // 저장된 병뚜껑 경로 불러오기
+    this.load.image('bottlecap', selectedCap); // 선택된 병뚜껑 로드
+    this.load.image('table', 'pics/table.jpg');  // 테이블 이미지
+    this.load.image('bolt', 'pics/bolt.png');
 }
 
 let gameOver = false;  // 게임 종료 여부
@@ -109,7 +95,7 @@ function create() {
     // 병뚜껑 및 새총의 위치 설정 (테이블 하단에 위치하도록 조정)
     //this.add.image(500, 3000, 'table');  // 테이블 이미지 배경 설정
     bottleCap = this.physics.add.sprite(slingshotAnchorX - 100, bottleCapOriginalY, 'bottlecap');
-    bottleCap.setScale(0.1);
+    bottleCap.setScale(0.6);
     bottleCap.setCollideWorldBounds(false);  // 테이블 끝에서 벗어날 수 있도록 설정
     bottleCap.setInteractive();
     
@@ -170,7 +156,7 @@ function create() {
             // 발사 직후 실시간으로 현재 거리 표시 시작
             let updateDistanceInterval = setInterval(() => {
                 let currentDistance = Math.abs(bottleCap.y - finishLineY);
-                document.getElementById('current-distance').innerText = `${currentDistance.toFixed(3)} cm`;
+                document.getElementById("current-distance").innerText = `${currentDistance.toFixed(3)} cm`;
                 
                 // 병뚜껑이 멈췄거나 게임이 종료되면 실시간 업데이트 중지
                 if (bottleCap.body.speed < 10 || gameOver) {
@@ -180,9 +166,12 @@ function create() {
         }
     });
 
+    // 병뚜껑 이미지 설정 (남은 병뚜껑 아이콘 업데이트)
+    updateCapsUI();
+
 
     // 점수 계산을 위한 끝 라인 설정 (테이블 상단)
-    let finishLineY = 50;  // 끝 라인의 Y 좌표 (화면 위쪽)
+    //let finishLineY = 50;  // 끝 라인의 Y 좌표 (화면 위쪽)
     let finishLine = this.add.line(400, finishLineY, 0, 0, 1200, 0, 0xff0000);  // 빨간색으로 라인 표시
 }
 
@@ -195,8 +184,8 @@ function handleBottleCapAction() {
     console.log(distanceFromFinish);
 
     // 최고 기록을 갱신할 때, 초기 값이거나 더 작은 값이 나오면 갱신
-    if (highestScore === 0 || distanceFromFinish < highestScore || highestScore >= 10000) {
-        highestScore = distanceFromFinish;
+    if (highestScore === 0 || parseFloat(distanceFromFinish) < highestScore || highestScore >= 10000) {
+        highestScore = parseFloat(distanceFromFinish);  // 문자열을 숫자로 변환하여 저장
         updateBestScoreUI();  // 최고 기록이 갱신되었으므로 반드시 호출
     }
 
@@ -212,20 +201,73 @@ function handleBottleCapAction() {
     }
 }
 
+import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js";
+
+// 최고 기록 업데이트 함수
+async function updateHighestScore(studentId, newScore) {
+    const userRef = doc(db, "users", studentId);  // Firestore 문서 참조
+    const userDoc = await getDoc(userRef);
+
+    if (userDoc.exists()) {
+        const currentHighestScore = userDoc.data().highestScore || 0;
+
+        if (parseFloat(newScore) > parseFloat(currentHighestScore)) {  // float으로 변환 후 비교
+            try {
+                await updateDoc(userRef, {
+                    highestScore: parseFloat(newScore)  // float으로 변환하여 저장
+                });
+                console.log("최고 기록이 성공적으로 업데이트되었습니다.");
+            } catch (error) {
+                console.error("최고 기록 업데이트 중 오류 발생: ", error);
+            }
+        }
+    } else {
+        console.error("사용자 문서를 찾을 수 없습니다.");
+    }
+}
+
+// 게임이 끝나면 hasPlayed를 true로 설정하는 함수
+async function updateHasPlayed(studentId) {
+    const userRef = doc(db, "users", studentId);
+    try {
+        await updateDoc(userRef, {
+            hasPlayed: true
+        });
+        console.log("hasPlayed가 true로 업데이트되었습니다.");
+    } catch (error) {
+        console.error("hasPlayed 업데이트 중 오류 발생: ", error);
+    }
+}
+
 function update() {
     if (gameOver) return;  // 게임 종료 시 더 이상 업데이트 하지 않음
     // 병뚜껑이 발사된 후에만 실시간으로 현재 병뚜껑과 결승선 간의 거리를 계산
+    // 병뚜껑이 발사된 후에만 실시간으로 현재 병뚜껑과 결승선 간의 거리를 계산
     if (!isDragging && bottleCap.body.velocity.length() > 0) {
         let currentDistance = Math.abs(bottleCap.y - finishLineY);
-        document.getElementById('current-distance').innerText = `${currentDistance.toFixed(5)} cm`;  // 현재 거리 업데이트
+        document.getElementById('current-distance').innerText = `${currentDistance.toFixed(5)} cm`;
 
         // 병뚜껑의 속도에 따라 회전 속도를 서서히 줄임
         let velocityMagnitude = bottleCap.body.velocity.length();  // 병뚜껑의 속도 크기
-        let angularDampeningFactor = 1.00;  // 회전 속도를 서서히 줄일 감속 계수
+        let angularVelocity = bottleCap.body.angularVelocity;  // 병뚜껑의 회전 속도
+
+        // 병뚜껑이 충분히 느려지고 멈췄는지 감지
+        if (velocityMagnitude < 5 && Math.abs(angularVelocity) < 5 && !isBottleCapStopped) {
+            isBottleCapStopped = true;
+            endSound.play();  // 병뚜껑이 멈췄을 때 소리 재생
+
+            // 2초 후에 다음 턴으로 넘어가는 타이머 설정
+            setTimeout(() => {
+                handleBottleCapAction();  // 병뚜껑이 멈춘 후 기록 갱신 및 처리
+                if (triesLeft <= 0) {
+                    endGame();  // 남은 병뚜껑이 없으면 게임 종료
+                }
+            }, 1000);  // 1초 대기 후 다음 턴으로 넘어감
+        }
 
         // 병뚜껑이 이동 중일 때 서서히 회전 속도를 줄임
-        if (velocityMagnitude > 15) {
-            bottleCap.setAngularVelocity(bottleCap.body.angularVelocity * angularDampeningFactor);
+        if (velocityMagnitude > 5) {
+            bottleCap.setAngularVelocity(angularVelocity * 1.00);  // 회전 속도를 서서히 줄임
         } else {
             bottleCap.setAngularVelocity(0);  // 속도가 매우 느리면 회전을 완전히 멈춤
         }
@@ -262,40 +304,24 @@ function update() {
 }
 
 function updateCapsUI() {
-    let caps = document.querySelectorAll(".cap-icon");
+    const selectedCap = localStorage.getItem('selectedCap');  // 선택된 병뚜껑 이미지 경로
+    let caps = document.querySelectorAll(".cap-icon");  // 남은 병뚜껑 아이콘들
+
+    // 병뚜껑 이미지 설정
+    caps.forEach((capIcon) => {
+        capIcon.src = selectedCap;  // 선택된 병뚜껑 이미지로 아이콘 변경
+    });
+
     // 남은 병뚜껑의 개수보다 많은 병뚜껑 아이콘이 있다면 숨김 처리
     if (triesLeft >= 0 && triesLeft < caps.length) {
         caps[caps.length - triesLeft - 1].style.visibility = 'hidden';
     }
 }
 
+
 function updateBestScoreUI() {
     console.log(highestScore);
     document.getElementById("best-score").textContent = `${highestScore.toFixed(3)} cm`;
-}
-
-function handleBottleCapAction() {
-    triesLeft -= 1;
-    updateCapsUI();  // 병뚜껑 UI 업데이트
-    
-    let distanceFromFinish = Math.abs(bottleCap.y - finishLineY);  // 끝 라인에서 떨어진 거리 계산
-
-    // 최고 기록을 갱신할 때, 초기 값이거나 더 작은 값이 나오면 갱신
-    if (highestScore === 0 || distanceFromFinish < highestScore || highestScore >= 10000) {
-        highestScore = distanceFromFinish;
-        updateBestScoreUI();  // 최고 기록이 갱신되었으므로 반드시 호출
-    }
-
-    // 병뚜껑이 테이블 위에 있는지 확인
-    if (bottleCap.y > tableHeight - 100) {
-        if (bottleCap.x < 500 || bottleCap.x > 700) {  // 낙 처리
-            resetBottleCap(false);  // 범위 밖이면 낙 처리
-        } else {
-            resetBottleCap(true);  // 정상 발사 완료
-        }
-    } else {
-        resetBottleCap(false);  // 낙구 처리 (범위 밖)
-    }
 }
 
 // 낙 처리 범위를 확인하는 함수
@@ -331,7 +357,6 @@ function resetBottleCap(success) {
     }
 }
 
-// 게임 종료
 function endGame() {
     gameOver = true;  // 게임 종료 플래그 설정
 
@@ -342,8 +367,17 @@ function endGame() {
     bottleCap.disableInteractive();  
     camera.stopFollow();  // 카메라 멈춤
 
-    // Firebase에 점수 저장
-    saveGameResult(score);
+    // localStorage에서 저장된 studentId 가져오기
+    const studentId = localStorage.getItem('studentId');
+
+    if (studentId) {
+        updateHighestScore(studentId, highestScore).then(() => {
+            // 게임이 끝나면 hasPlayed 값을 true로 업데이트
+            updateHasPlayed(studentId);
+        });
+    } else {
+        console.error("studentId가 없습니다. 게임 시작 전에 학번을 저장했는지 확인하세요.");
+    }
 
     // 2초 후에 result.html로 이동
     setTimeout(function() {
@@ -351,20 +385,6 @@ function endGame() {
     }, 2000);  // 2초 동안 대기 후 페이지 이동
 }
 
-async function saveGameResult(score) {
-    const studentId = document.getElementById('student-id').value;
-    const name = document.getElementById('name').value;
-
-    try {
-        await setDoc(doc(db, "scores", studentId), {
-            name: name,
-            score: score
-        });
-        console.log('Score saved successfully');
-    } catch (error) {
-        console.error('Error saving score: ', error);
-    }
-}
 
 // 병뚜껑이 테이블 밖으로 나갔을 때 처리하는 함수
 function handleOutOfBounds() {
@@ -408,3 +428,5 @@ function updateSlingshotLine(endX, endY) {
     slingshotLine.lineBetween(slingshotAnchorX - 200, slingshotAnchorY, endX, endY);  // 왼쪽 고무줄
     slingshotLine.lineBetween(slingshotAnchorX + 0, slingshotAnchorY, endX, endY);  // 오른쪽 고무줄
 }
+// app.js 파일의 끝 부분에 추가
+export{startPhaserGame};
