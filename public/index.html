@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SnapShot</title>
+    <title>SNAPSHOT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-
+    <link rel="icon" type="image/png" href="pics/logo.png">
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
@@ -60,7 +61,8 @@
 
 <body>
     <div class="container">
-        <h1>SNAPSHOT</h1>
+        <img src="pics/logo.png" alt="SnapShot Logo" class="logo">
+        <h1 id="hello">SNAPSHOT에 오신것을 환영합니다!</h1>
         <form id="user-form">
             <select id="department">
                 <option value="" disabled selected>학과를 선택하세요</option>

@@ -65,3 +65,8 @@ input {
     background-color: black;
     overflow: hidden;  /* 스크롤바가 나타나지 않도록 함 */
 }
+
+#hello{
+    font-family: 'Noto Sans KR', sans-serif;
+    margin-bottom: 100px;
+}

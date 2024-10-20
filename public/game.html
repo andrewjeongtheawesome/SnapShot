@@ -6,7 +6,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SnapShot Game</title>
+    <title>SNAPSHOT</title>
+    <link rel="icon" type="image/png" href="pics/logo.png">
     <link rel="stylesheet" href="game.css">
 
 </head>
@@ -49,6 +50,10 @@
             } else {
                 console.error("No studentId found in localStorage.");
             }
+        };
+        // 뒤로 가기 방지 설정
+        window.onpopstate = function(event) {
+            history.go(1);
         };
     </script>
     

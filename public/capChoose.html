@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
     <title>SNAPSHOT</title>
+    <link rel="icon" type="image/png" href="pics/logo.png">
     <link rel="stylesheet" href="cap.css">
 </head>
 <body>
@@ -90,8 +92,30 @@
                 console.error('Student ID or selected cap is missing');
             }
         }
-
         document.getElementById('select-cap-btn').addEventListener('click', updateSelectedCapInFirestore);
+
+        window.addEventListener('load', function() {
+            // 페이지가 로드될 때 상태를 설정하여 뒤로 가기 방지
+            history.pushState(null, null, window.location.href);
+            
+            // 해시 추가 (더 강력하게 뒤로 가기 방지)
+            window.location.hash = "no-back";
+
+            // 뒤로 가기 시도 시 해시값 감지하여 다시 설정
+            window.addEventListener('hashchange', function() {
+                if (window.location.hash !== "#no-back") {
+                    window.location.hash = "no-back";
+                    alert("이 창에서는 뒤로 갈 수 없습니다.");
+                }
+            });
+
+            // popstate 이벤트를 감지해 뒤로 가기 방지
+            window.addEventListener('popstate', function (event) {
+                history.pushState(null, null, window.location.href);
+                alert("이 창에서는 뒤로 갈 수 없습니다.");
+            });
+        });
+
 
         updateCap();
 </script>

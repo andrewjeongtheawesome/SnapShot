@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SnapShot Result</title>
+    <link rel="icon" type="image/png" href="pics/logo.png">
     <link rel="stylesheet" href="result.css">
 
     <script type="module">
@@ -44,7 +45,10 @@
 
             document.getElementById('ranking-list').innerHTML = rankingList;
         }
-
+        // 뒤로 가기 방지 설정
+        window.onpopstate = function(event) {
+            history.go(1);
+        };
         window.onload = loadRanking;  // 페이지 로드 시 랭킹 로드
     </script>
 </head>
