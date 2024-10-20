@@ -94,28 +94,27 @@
         }
         document.getElementById('select-cap-btn').addEventListener('click', updateSelectedCapInFirestore);
 
+        history.pushState(null, null, location.href);
+
         window.addEventListener('load', function() {
-            // 페이지가 로드될 때 상태를 설정하여 뒤로 가기 방지
-            history.pushState(null, null, window.location.href);
-            
-            // 해시 추가 (더 강력하게 뒤로 가기 방지)
-            window.location.hash = "no-back";
+            // 페이지가 로드된 후 빈 화면(바탕)을 클릭
+            setTimeout(function() {
+                // 클릭 이벤트 생성
+                var event = new MouseEvent('click', {
+                    view: window,
+                    bubbles: true,
+                    cancelable: true
+                });
 
-            // 뒤로 가기 시도 시 해시값 감지하여 다시 설정
-            window.addEventListener('hashchange', function() {
-                if (window.location.hash !== "#no-back") {
-                    window.location.hash = "no-back";
-                    alert("이 창에서는 뒤로 갈 수 없습니다.");
-                }
-            });
-
-            // popstate 이벤트를 감지해 뒤로 가기 방지
-            window.addEventListener('popstate', function (event) {
-                history.pushState(null, null, window.location.href);
-                alert("이 창에서는 뒤로 갈 수 없습니다.");
-            });
+                // body 요소에 클릭 이벤트를 트리거
+                document.body.dispatchEvent(event);
+            }, 10); // 1초 후에 클릭 (시간 조정 가능)
         });
 
+        window.onpopstate = function (event) {
+            console.alert("못 지나간다.")
+            history.forward();
+        };
 
         updateCap();
 </script>

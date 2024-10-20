@@ -4,17 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SnapShot Result</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" href="pics/logo.png">
     <link rel="stylesheet" href="result.css">
 
     <script type="module">
         // Firebase SDK 가져오기
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+        import { getFirestore, collection, getDocs, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
         
         // Firebase 설정
         const firebaseConfig = {
-          apiKey: "AIzaSyAZX7_fPX0B_-EA-OGvW6KmalFOGsQ3ZQU",
+          apiKey: "API_KEY",  // 여기에 실제 API 키 입력
           authDomain: "snapshot-4ad8f.firebaseapp.com",
           projectId: "snapshot-4ad8f",
           storageBucket: "snapshot-4ad8f.appspot.com",
@@ -27,51 +28,92 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // 점수 불러오기 및 표시 함수
+        // 현재 사용자의 ID 가져오기 (로컬 저장소나 세션에서 가져오는 방식)
+        const currentUserId = localStorage.getItem('studentId');  // 사용자 학번으로 고유 식별
+
+        // 현재 사용자 정보와 전체 랭킹을 불러오는 함수
         async function loadRanking() {
-            const scoresRef = collection(db, "users"); // users 컬렉션에서 점수 불러옴
-            const q = query(scoresRef, orderBy("highestScore", "asc"));  // 최고 기록 기준으로 내림차순 정렬
+            const scoresRef = collection(db, "users");  // 'users' 컬렉션에서 데이터 가져옴
+            const q = query(scoresRef, orderBy("highestScore", "asc"));  // 최고 기록 기준으로 오름차순 정렬
             const querySnapshot = await getDocs(q);
 
             let rankingList = '';
-            querySnapshot.forEach((doc, index) => {
-                const { name, highestScore } = doc.data();
+            let rank = 1;  // 순위를 수동으로 관리
+            let userRank = null;  // 현재 사용자 등수를 저장할 변수
+            let userHighestScore = null;  // 현재 사용자 최고 기록
+
+            querySnapshot.forEach((doc) => {
+                const { name, department, studentId, highestScore } = doc.data();
+                const score = highestScore ? highestScore.toFixed(3) : "N/A";  // 점수 없는 경우 "N/A"로 표시
+
+                // 현재 사용자일 경우 등수와 최고 기록 저장
+                if (studentId === currentUserId) {
+                    userRank = rank;
+                    userHighestScore = score;
+                }
+
                 rankingList += `<tr>
-                                  <td>${index + 1}</td>
+                                  <td>${rank}</td>
+                                  <td>${department}</td>
+                                  <td>${studentId}</td>
                                   <td>${name}</td>
-                                  <td>${highestScore.toFixed(3)} cm</td>
+                                  <td>${score} CM</td>
                                 </tr>`;
+                rank++;  // 순위 증가
             });
+
+            // 사용자 최고 기록 및 등수 표시
+            if (userHighestScore !== null && userRank !== null) {
+                document.getElementById('your-score').textContent = `${userHighestScore} CM`;
+                document.getElementById('your-rank').innerHTML = `${userRank}<sup>st</sup>`;
+            } else {
+                document.getElementById('your-score').textContent = "N/A";
+                document.getElementById('your-rank').innerHTML = "N/A";
+            }
 
             document.getElementById('ranking-list').innerHTML = rankingList;
         }
+
         // 뒤로 가기 방지 설정
         window.onpopstate = function(event) {
             history.go(1);
         };
-        window.onload = loadRanking;  // 페이지 로드 시 랭킹 로드
+
+        // 페이지 로드 시 랭킹 로드
+        window.onload = loadRanking;
     </script>
 </head>
 <body>
     <div class="container">
-        <h1>게임 랭킹</h1>
+        <div class="left">
+            <img src="pics/logo.png" alt="SnapShot Logo" class="logo">
+            <h2 id="your-record-name">당신의 최고기록</h2>
+            <h1 id="your-score">0.000 CM</h1>
+            <h2 id="your-rank-name">당신의 등수</h2>
+            <h1 id="your-rank">0<sup>st</sup></h1>
+            <button class="home-btn" onclick="window.location.href='index.html'">홈으로</button>
+        </div>
 
-        <!-- 순위와 기록을 표시하는 테이블 -->
-        <table id="ranking-table" border="1" cellspacing="0" cellpadding="5">
-            <thead>
-                <tr>
-                    <th>순위</th>
-                    <th>이름</th>
-                    <th>기록</th>
-                </tr>
-            </thead>
-            <tbody id="ranking-list">
-                <!-- Firebase에서 데이터를 불러와 여기에 표시 -->
-            </tbody>
-        </table>
-
-        <!-- 다시하기 버튼 -->
-        <button onclick="window.location.href='index.html'">다시 하기</button>
+        <div class="right">
+            <h2 id="ranking">👑랭킹👑</h2>
+            <!-- 랭킹 테이블: 높이를 고정하고 스크롤 가능하게 변경 -->
+            <div class="ranking-container">
+                <table class="ranking-table" border="1" cellspacing="0" cellpadding="5">
+                    <thead>
+                        <tr>
+                            <th>순위</th>
+                            <th>학과</th>
+                            <th>학번</th>
+                            <th>이름</th>
+                            <th>기록</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ranking-list">
+                        <!-- Firebase에서 데이터를 불러와 여기에 표시 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </body>
 </html>
