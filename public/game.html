@@ -52,8 +52,24 @@
             }
         };
         // 뒤로 가기 방지 설정
-        window.onpopstate = function(event) {
-            history.go(1);
+        window.addEventListener('load', function() {
+            // 페이지가 로드된 후 빈 화면(바탕)을 클릭
+            setTimeout(function() {
+                // 클릭 이벤트 생성
+                var event = new MouseEvent('click', {
+                    view: window,
+                    bubbles: true,
+                    cancelable: true
+                });
+
+                // body 요소에 클릭 이벤트를 트리거
+                document.body.dispatchEvent(event);
+            }, 10); // 1초 후에 클릭 (시간 조정 가능)
+        });
+
+        window.onpopstate = function (event) {
+            console.alert("이 페이지에서는 뒤로갈 수 없습니다.")
+            history.forward();
         };
     </script>
     

@@ -42,8 +42,12 @@
             let userHighestScore = null;
             let userCupImage = null;  // 사용자 병뚜껑 이미지
 
+            // N/A 값을 가진 사용자를 마지막에 배치하기 위한 배열
+            let normalRanking = [];
+            let naRanking = [];
+
             querySnapshot.forEach((doc) => {
-                const { name, department, studentId, highestScore, selectedCap } = doc.data();  // 병뚜껑 이미지 추가
+                const { name, department, studentId, highestScore, selectedCap } = doc.data();
                 const score = highestScore ? highestScore.toFixed(3) : "N/A";
 
                 if (studentId === currentUserId) {
@@ -52,14 +56,47 @@
                     userCupImage = selectedCap;  // 병뚜껑 이미지 경로 저장
                 }
 
+                // N/A 값을 가진 사용자는 따로 저장
+                if (score === "N/A") {
+                    naRanking.push({
+                        rank: "N/A",
+                        department,
+                        studentId,
+                        name,
+                        score
+                    });
+                } else {
+                    normalRanking.push({
+                        rank,
+                        department,
+                        studentId,
+                        name,
+                        score
+                    });
+                    rank++;  // 정상적인 점수일 때만 순위 증가
+                }
+            });
+
+            // 정상적인 순위 리스트 추가
+            normalRanking.forEach(item => {
                 rankingList += `<tr>
-                                  <td>${rank}</td>
-                                  <td>${department}</td>
-                                  <td>${studentId}</td>
-                                  <td>${name}</td>
-                                  <td>${score} CM</td>
+                                <td>${item.rank}</td>
+                                <td>${item.department}</td>
+                                <td>${item.studentId}</td>
+                                <td>${item.name}</td>
+                                <td>${item.score} CM</td>
                                 </tr>`;
-                rank++;
+            });
+
+            // N/A 순위 리스트 추가 (마지막에 배치)
+            naRanking.forEach(item => {
+                rankingList += `<tr>
+                                <td>-</td>
+                                <td>${item.department}</td>
+                                <td>${item.studentId}</td>
+                                <td>${item.name}</td>
+                                <td>${item.score}</td>
+                                </tr>`;
             });
 
             // 사용자 최고 기록 및 등수 표시
@@ -80,6 +117,7 @@
                 console.error("병뚜껑 이미지가 없습니다.");
             }
         }
+
 
         // 캔버스에 결과 이미지 그리기
         function drawResultImage(cupImageSrc, score, rank, dateTime) {
@@ -153,6 +191,12 @@
             loadRanking();  // 랭킹 및 사용자 정보 로드
             generateQRCode();  // QR 코드 생성
         };
+
+        // 뒤로라기 이벤트감지 -> 현재페이지로 이동
+        window.onpopstate = function() { 
+            console.alert("이 페이지에서는 뒤로갈 수 없습니다.")
+            history.go(1); 
+        }
     </script>
 </head>
 <body>
@@ -165,6 +209,7 @@
             <h1 id="your-rank">0<sup>st</sup></h1>
             <!-- <button id="downloadBtn" class="home-btn">이미지 다운로드</button> -->
             <div id="qrcode" class="qr-code"></div> <!-- QR 코드가 생성되는 부분 -->
+            <button class="home-btn" onclick="window.location.href='index.html'">홈으로</button>
         </div>
 
         <div class="right">

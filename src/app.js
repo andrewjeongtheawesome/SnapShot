@@ -1,5 +1,5 @@
 // Firestore 초기화 (index.html에서 이미 firebase가 초기화되었으므로, 바로 사용)
-import { auth, db } from '../src/firebaseConfig.js';
+import { db } from '../src/firebaseConfig.js';
 
 let bottleCap;
 let triesLeft = 3;  // 병뚜껑 남은 개수
@@ -100,7 +100,7 @@ function create() {
     bottleCap.setInteractive();
     
     // 마찰력 추가
-    bottleCap.body.setDrag(1000);  // X축과 Y축 모두에서 마찰력을 설정
+    bottleCap.body.setDrag(800);  // X축과 Y축 모두에서 마찰력을 설정
     bottleCap.body.setBounce(0.8);  // 병뚜껑이 충돌 시 반동
 
     // 병뚜껑 개수, 최고 기록, 현재 위치 표시 바
@@ -267,7 +267,7 @@ function update() {
 
         // 병뚜껑이 이동 중일 때 서서히 회전 속도를 줄임
         if (velocityMagnitude > 5) {
-            bottleCap.setAngularVelocity(angularVelocity * 1.00);  // 회전 속도를 서서히 줄임
+            bottleCap.setAngularVelocity(angularVelocity * 0.99);  // 회전 속도를 서서히 줄임
         } else {
             bottleCap.setAngularVelocity(0);  // 속도가 매우 느리면 회전을 완전히 멈춤
         }

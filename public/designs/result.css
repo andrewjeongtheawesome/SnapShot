@@ -151,6 +151,10 @@ sup {
     margin-top: 80px;
 }
 
+#qrcode{
+    margin-bottom: 50px;
+}
+
 /* 미디어 쿼리를 통한 반응형 디자인 */
 @media (max-width: 768px) {
     .container {
