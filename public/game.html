@@ -37,10 +37,10 @@
 
     <!-- Phaser.js는 게임에 필요하므로 유지 -->
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
-    <script type="module" src="../src/app.js"></script> <!-- app.js에서 게임 로직 실행 -->
+    <script type="module" src="src/app.js"></script> <!-- app.js에서 게임 로직 실행 -->
 
     <script type="module">
-        import { startPhaserGame } from '../src/app.js';
+        import { startPhaserGame } from './src/app.js';
     
         window.onload = function() {
             const studentId = localStorage.getItem('studentId');
