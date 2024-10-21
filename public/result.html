@@ -32,7 +32,6 @@
 
         const currentUserId = localStorage.getItem('studentId');  // 로컬 스토리지에서 사용자 ID 가져오기
 
-        // 사용자 정보와 랭킹 데이터를 불러와서 화면에 출력하는 함수
         async function loadRanking() {
             const scoresRef = collection(db, "users");
             const q = query(scoresRef, orderBy("highestScore", "asc"));
@@ -40,6 +39,8 @@
 
             let rankingList = '';
             let rank = 1;
+            let previousScore = null;
+            let skipRank = 0;
             let userRank = null;
             let userHighestScore = null;
             let userCupImage = null;  // 사용자 병뚜껑 이미지
@@ -58,7 +59,6 @@
                     userCupImage = selectedCap;  // 병뚜껑 이미지 경로 저장
                 }
 
-                // N/A 값을 가진 사용자는 따로 저장
                 if (score === "N/A") {
                     naRanking.push({
                         rank: "N/A",
@@ -68,16 +68,32 @@
                         score
                     });
                 } else {
-                    normalRanking.push({
-                        rank,
-                        department,
-                        studentId,
-                        name,
-                        score
-                    });
-                    rank++;  // 정상적인 점수일 때만 순위 증가
+                    if (score === previousScore) {
+                        skipRank++;  // 동점일 때 skipRank 증가
+                        normalRanking.push({
+                            rank,  // 동점자는 같은 순위를 사용
+                            department,
+                            studentId,
+                            name,
+                            score
+                        });
+                    } else {
+                        rank += skipRank;  // 동점자가 끝났을 때 rank를 조정
+                        skipRank = 0;
+                        normalRanking.push({
+                            rank,
+                            department,
+                            studentId,
+                            name,
+                            score
+                        });
+                    }
+
+                    previousScore = score;
+                    rank++;  // 다음 순위를 위해 증가
                 }
             });
+
 
             // 정상적인 순위 리스트 추가
             normalRanking.forEach(item => {
@@ -119,7 +135,6 @@
                 console.error("병뚜껑 이미지가 없습니다.");
             }
         }
-
 
         // 캔버스에 결과 이미지 그리기
         function drawResultImage(cupImageSrc, score, rank, dateTime) {
