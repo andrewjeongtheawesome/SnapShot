@@ -1,0 +1,171 @@
+/* 기본 스타일 설정 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: white;
+    margin: 0;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 95%; /* 너비를 95%로 확대 */
+    max-width: 1400px; /* 전체 최대 너비를 1400px로 확대 */
+    margin: 0 auto;
+    height: 90vh; /* 전체 창의 높이를 기준으로 설정 */
+}
+
+/* 반응형 스타일을 위한 미디어 쿼리 추가 */
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column; /* 모바일 환경에서는 세로로 정렬 */
+        align-items: center;
+    }
+
+    .right, .left {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .ranking-container {
+        height: 40vh; /* 모바일에서는 높이 축소 */
+    }
+}
+
+.left, .right {
+    flex: 1;
+    padding: 20px;
+    overflow: hidden;
+}
+
+.left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.logo {
+    width: 15vw; /* 뷰포트 크기 기준으로 조정 */
+    height: auto;
+    margin-bottom: 20px;
+}
+
+#your-record-name {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 1.5vw;
+    margin-bottom: 5px;
+    font-weight: normal;
+}
+
+#your-score {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 2.5vw;
+    margin-bottom: 40px;
+}
+
+#your-rank-name {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 1vw;
+    margin-bottom: 5px;
+    font-weight: normal;
+}
+
+#your-rank {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 3vw;
+    margin-bottom: 40px;
+}
+
+#ranking {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 2vw;
+    margin-bottom: 20px;
+}
+
+sup {
+    font-size: 1.5vw; /* 뷰포트 너비 기준 */
+}
+
+.home-btn {
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+    font-weight: normal;
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+.home-btn:hover {
+    background-color: #0056b3;
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+.right {
+    padding-left: 40px;
+}
+
+.ranking-container {
+    height: 60vh; /* 창 높이에 맞게 테이블 크기 조정 */
+    overflow-y: auto; /* 세로 스크롤 가능하게 설정 */
+    border: 1px solid #ddd;
+    width: 100%; /* 가로 크기를 100%로 설정 */
+}
+
+.ranking-table {
+    font-family: 'Noto Sans KR', sans-serif;
+    width: 100%; /* 부모 요소에 맞게 100% 설정 */
+    max-width: 1400px; /* 최대 너비를 1400px로 설정 */
+    border-collapse: collapse;
+}
+
+.ranking-table th, .ranking-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+.ranking-table th {
+    background-color: #f4f4f4;
+}
+
+.ranking-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+#id{
+    margin-top: 80px;
+}
+
+#qrcode{
+    margin-bottom: 50px;
+}
+
+/* 미디어 쿼리를 통한 반응형 디자인 */
+@media (max-width: 768px) {
+    .container {
+        width: 100%; /* 모바일에서 너비 100% 설정 */
+    }
+
+    .ranking-table {
+        width: 100%; /* 모바일에서 표 너비 100% */
+    }
+
+    .ranking-container {
+        height: 50vh; /* 모바일에서 높이를 줄임 */
+    }
+}

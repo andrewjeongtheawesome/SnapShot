@@ -6,8 +6,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SnapShot Game</title>
-    <link rel="stylesheet" href="game.css">
+    <title>SNAPSHOT</title>
+    <link rel="icon" type="image/png" href="pics/logo.png">
+    <link rel="stylesheet" href="designs/game.css">
+
 </head>
 <body>
     <div id="game-container">
@@ -22,24 +24,54 @@
             <p id="best-score">0cm</p>
             <p id="remaining">남은 병뚜껑</p>
             <div id="caps-container">
-                <img src="bottlecap.png" class="cap-icon" id="cap1">
-                <img src="bottlecap.png" class="cap-icon" id="cap2">
-                <img src="bottlecap.png" class="cap-icon" id="cap3">
+                <img src="" class="cap-icon" id="cap1">
+                <img src="" class="cap-icon" id="cap2">
+                <img src="" class="cap-icon" id="cap3">
             </div>
         </div>
-
         <!-- C 영역: 게임이 렌더링 되는 중앙 위치 -->
         <div id="phaser-game"></div>
     </div>
+    
+    <!-- Firebase SDK는 index.html에서 이미 불러왔기 때문에 다시 선언할 필요 없음 -->
 
+    <!-- Phaser.js는 게임에 필요하므로 유지 -->
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
-    <script src="../src/app.js"></script>
+    <script type="module" src="src/app.js"></script> <!-- app.js에서 게임 로직 실행 -->
 
-    <script>
-        // 페이지가 로드되면 자동으로 Phaser 게임 실행
+    <script type="module">
+        import { startPhaserGame } from './src/app.js';
+    
         window.onload = function() {
-            startPhaserGame();  // app.js에 정의된 게임 시작 함수 호출
-        }
+            const studentId = localStorage.getItem('studentId');
+            if (studentId) {
+                window.studentId = studentId;  // 전역 설정
+                startPhaserGame();  // 게임 시작 함수 호출
+            } else {
+                console.error("No studentId found in localStorage.");
+            }
+        };
+        // 뒤로 가기 방지 설정
+        window.addEventListener('load', function() {
+            // 페이지가 로드된 후 빈 화면(바탕)을 클릭
+            setTimeout(function() {
+                // 클릭 이벤트 생성
+                var event = new MouseEvent('click', {
+                    view: window,
+                    bubbles: true,
+                    cancelable: true
+                });
+
+                // body 요소에 클릭 이벤트를 트리거
+                document.body.dispatchEvent(event);
+            }, 10); // 1초 후에 클릭 (시간 조정 가능)
+        });
+
+        window.onpopstate = function (event) {
+            console.alert("이 페이지에서는 뒤로갈 수 없습니다.")
+            history.forward();
+        };
     </script>
+    
 </body>
 </html>

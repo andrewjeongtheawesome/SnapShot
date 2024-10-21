@@ -3,9 +3,243 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>SNAPSHOT</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="pics/logo.png">
+    <link rel="stylesheet" href="designs/result.css">
+
+    <!-- QR 코드 라이브러리 추가 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+        import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js"; // Firebase Storage 추가
+
+        const firebaseConfig = {
+          apiKey: "API_KEY",
+          authDomain: "snapshot-4ad8f.firebaseapp.com",
+          projectId: "snapshot-4ad8f",
+          storageBucket: "snapshot-4ad8f.appspot.com",
+          messagingSenderId: "1004891389072",
+          appId: "1:1004891389072:web:35514d2ddafce071a42c15",
+          measurementId: "G-1CZJZJRGG3"
+        };
+
+        // Firebase 초기화
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const storage = getStorage(app); // Storage 초기화
+
+        const currentUserId = localStorage.getItem('studentId');  // 로컬 스토리지에서 사용자 ID 가져오기
+
+        // 사용자 정보와 랭킹 데이터를 불러와서 화면에 출력하는 함수
+        async function loadRanking() {
+            const scoresRef = collection(db, "users");
+            const q = query(scoresRef, orderBy("highestScore", "asc"));
+            const querySnapshot = await getDocs(q);
+
+            let rankingList = '';
+            let rank = 1;
+            let userRank = null;
+            let userHighestScore = null;
+            let userCupImage = null;  // 사용자 병뚜껑 이미지
+
+            // N/A 값을 가진 사용자를 마지막에 배치하기 위한 배열
+            let normalRanking = [];
+            let naRanking = [];
+
+            querySnapshot.forEach((doc) => {
+                const { name, department, studentId, highestScore, selectedCap } = doc.data();
+                const score = highestScore ? highestScore.toFixed(3) : "N/A";
+
+                if (studentId === currentUserId) {
+                    userRank = rank;
+                    userHighestScore = score;
+                    userCupImage = selectedCap;  // 병뚜껑 이미지 경로 저장
+                }
+
+                // N/A 값을 가진 사용자는 따로 저장
+                if (score === "N/A") {
+                    naRanking.push({
+                        rank: "N/A",
+                        department,
+                        studentId,
+                        name,
+                        score
+                    });
+                } else {
+                    normalRanking.push({
+                        rank,
+                        department,
+                        studentId,
+                        name,
+                        score
+                    });
+                    rank++;  // 정상적인 점수일 때만 순위 증가
+                }
+            });
+
+            // 정상적인 순위 리스트 추가
+            normalRanking.forEach(item => {
+                rankingList += `<tr>
+                                <td>${item.rank}</td>
+                                <td>${item.department}</td>
+                                <td>${item.studentId}</td>
+                                <td>${item.name}</td>
+                                <td>${item.score} CM</td>
+                                </tr>`;
+            });
+
+            // N/A 순위 리스트 추가 (마지막에 배치)
+            naRanking.forEach(item => {
+                rankingList += `<tr>
+                                <td>-</td>
+                                <td>${item.department}</td>
+                                <td>${item.studentId}</td>
+                                <td>${item.name}</td>
+                                <td>${item.score}</td>
+                                </tr>`;
+            });
+
+            // 사용자 최고 기록 및 등수 표시
+            if (userHighestScore !== null && userRank !== null) {
+                document.getElementById('your-score').textContent = `${userHighestScore} CM`;
+                document.getElementById('your-rank').innerHTML = `${userRank}<sup>st</sup>`;
+            } else {
+                document.getElementById('your-score').textContent = "N/A";
+                document.getElementById('your-rank').innerHTML = "N/A";
+            }
+
+            document.getElementById('ranking-list').innerHTML = rankingList;
+
+            // 병뚜껑 이미지 및 결과를 캔버스에 그리기
+            if (userCupImage) {
+                drawResultImage(userCupImage, userHighestScore, userRank, new Date().toLocaleString());
+            } else {
+                console.error("병뚜껑 이미지가 없습니다.");
+            }
+        }
+
+
+        // 캔버스에 결과 이미지 그리기
+        function drawResultImage(cupImageSrc, score, rank, dateTime) {
+            const canvas = document.getElementById('resultCanvas');
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const img = new Image();
+            img.src = cupImageSrc;  // 병뚜껑 이미지 경로
+            img.onload = () => {
+                // 병뚜껑 이미지 크기 200x200으로 설정하고 중앙에 배치
+                const imgWidth = 200;
+                const imgHeight = 200;
+                const margin = 70;  // 병뚜껑과 글자 사이의 margin
+                const startY = 50;  // 병뚜껑 시작 위치
+
+                ctx.drawImage(img, (canvas.width - imgWidth) / 2, startY, imgWidth, imgHeight);  // 병뚜껑 이미지를 중앙에 맞춤
+
+                // 텍스트 크기 및 위치 조정
+                ctx.font = '28px Noto Sans KR';  // "당신의 최고 기록" 글자의 크기 28px로 설정
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#000';
+
+                // "당신의 최고 기록" 텍스트
+                ctx.fillText('당신의 최고 기록', canvas.width / 2, 280);  // 병뚜껑 이미지 아래로 위치 조정
+
+                ctx.font = 'bold 48px Noto Sans KR';  // 최고 기록 숫자의 크기 48px로 설정
+                ctx.fillText(`${score} CM`, canvas.width / 2, 340);  // 텍스트 위치 조정
+
+                ctx.font = '28px Noto Sans KR';  // "당신의 등수" 글자의 크기 28px로 설정
+                ctx.fillText('당신의 등수', canvas.width / 2, 410);
+
+                ctx.font = 'bold 48px Noto Sans KR';  // 등수 글자의 크기 48px로 설정
+                ctx.fillText(`${rank}st`, canvas.width / 2, 470);
+
+                ctx.font = 'italic 18px Noto Sans KR';  // 날짜의 크기 18px로 설정
+                ctx.fillText(`(${dateTime} 기준)`, canvas.width / 2, 520);
+
+                const logoImg = new Image();
+                logoImg.src = 'pics/logo.png';  // 로고 이미지 경로
+                logoImg.onload = () => {
+                    // 로고 크기 조정 및 중앙 맞춤 (60x60 크기로 설정)
+                    ctx.drawImage(logoImg, (canvas.width - 60) / 2, 550, 60, 60);  // 로고 이미지 위치 조정
+
+                    // 이미지 업로드 후 QR코드 생성
+                    uploadResultToFirebase(canvas);
+                };
+            };
+        }
+
+        // Firebase에 이미지 업로드
+        function uploadResultToFirebase(canvas) {
+            const dataUrl = canvas.toDataURL('image/png');
+            const storageRef = ref(storage, `results/${currentUserId}.png`);
+            uploadString(storageRef, dataUrl, 'data_url').then((snapshot) => {
+                console.log('Uploaded a data_url string!');
+                getDownloadURL(snapshot.ref).then((downloadURL) => {
+                    generateQRCode(downloadURL);  // 이미지 URL로 QR 코드 생성
+                });
+            }).catch((error) => {
+                console.error('Error uploading image:', error);
+            });
+        }
+
+        // QR 코드 생성
+        function generateQRCode(imageUrl) {
+            const qrCodeDiv = document.getElementById('qrcode');
+            new QRCode(qrCodeDiv, {
+                text: imageUrl,  // Firebase Storage의 다운로드 URL
+                width: 96,
+                height: 96
+            });
+        }
+
+        window.onload = () => {
+            loadRanking();  // 랭킹 및 사용자 정보 로드
+        };
+
+        // 뒤로 가기 이벤트 감지 -> 현재 페이지로 이동
+        window.onpopstate = function() { 
+            console.alert("이 페이지에서는 뒤로갈 수 없습니다.");
+            history.go(1); 
+        };
+    </script>
 </head>
 <body>
-    <p>hello, world</p>
+    <div class="container">
+        <div class="left">
+            <img src="pics/logo.png" alt="SnapShot Logo" class="logo">
+            <h2 id="your-record-name">당신의 최고기록</h2>
+            <h1 id="your-score">0.000 CM</h1>
+            <h2 id="your-rank-name">당신의 등수</h2>
+            <h1 id="your-rank">0<sup>st</sup></h1>
+            <div id="qrcode" class="qr-code"></div> <!-- QR 코드가 생성되는 부분 -->
+            <button class="home-btn" onclick="window.location.href='index.html'">홈으로</button>
+        </div>
+
+        <div class="right">
+            <h2 id="ranking">👑랭킹👑</h2>
+            <div class="ranking-container">
+                <table class="ranking-table" border="1" cellspacing="0" cellpadding="5">
+                    <thead>
+                        <tr>
+                            <th>순위</th>
+                            <th>학과</th>
+                            <th>학번</th>
+                            <th>이름</th>
+                            <th>기록</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ranking-list">
+                        <!-- Firebase에서 데이터를 불러와 여기에 표시 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="resultCanvas" width="500" height="700" style="display:none;"></canvas> <!-- 결과 캔버스 숨김 -->
 </body>
 </html>
