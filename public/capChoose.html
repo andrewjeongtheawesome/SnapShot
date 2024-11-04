@@ -26,6 +26,13 @@
     </div>
 
     <script type="module">
+        // 뒤로 가기 방지 설정
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            alert("이 페이지에서는 뒤로 갈 수 없습니다.");
+            history.go(1);  // 현재 페이지에 머물도록 설정
+        };
+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
         import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
@@ -93,15 +100,6 @@
             }
         }
         document.getElementById('select-cap-btn').addEventListener('click', updateSelectedCapInFirestore);
-
-        // 스택 추가
-        history.pushState(null, null, location.href); 
-
-        // 뒤로라기 이벤트감지 -> 현재페이지로 이동
-        window.onpopstate = function() { 
-            console.alert("이 페이지에서는 뒤로갈 수 없습니다.")
-            history.go(1); 
-        }
 
         updateCap();
 </script>

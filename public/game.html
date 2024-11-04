@@ -46,6 +46,13 @@
     <script type="module" src="src/app.js"></script> <!-- app.js에서 게임 로직 실행 -->
 
     <script type="module">
+        // 뒤로 가기 방지 설정
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            alert("이 페이지에서는 뒤로 갈 수 없습니다.");
+            history.go(1);  // 현재 페이지에 머물도록 설정
+        };
+        
         import { startPhaserGame } from './src/app.js';
     
         window.onload = function() {
@@ -83,11 +90,6 @@
                 document.body.dispatchEvent(event);
             }, 10); // 1초 후에 클릭 (시간 조정 가능)
         });
-
-        window.onpopstate = function (event) {
-            console.alert("이 페이지에서는 뒤로갈 수 없습니다.");
-            history.forward();
-        };
     </script>
 </body>
 </html>

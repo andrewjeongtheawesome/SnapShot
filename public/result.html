@@ -11,6 +11,13 @@
     <!-- QR 코드 라이브러리 추가 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script type="module">
+        // 뒤로 가기 방지 설정
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            alert("이 페이지에서는 뒤로 갈 수 없습니다.");
+            history.go(1);  // 현재 페이지에 머물도록 설정
+        };
+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
         import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
         import { getStorage, ref, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-storage.js"; // Firebase Storage 추가
@@ -213,12 +220,6 @@
 
         window.onload = () => {
             loadRanking();  // 랭킹 및 사용자 정보 로드
-        };
-
-        // 뒤로 가기 이벤트 감지 -> 현재 페이지로 이동
-        window.onpopstate = function() { 
-            console.alert("이 페이지에서는 뒤로갈 수 없습니다.");
-            history.go(1); 
         };
     </script>
 </head>

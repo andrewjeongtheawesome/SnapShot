@@ -8,6 +8,12 @@
     <link rel="stylesheet" href="designs/style.css">
     <link rel="icon" type="image/png" href="pics/logo.png">
     <script type="module">
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            alert("이 페이지에서는 뒤로 갈 수 없습니다.");
+            history.go(1);
+        };
+        
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js";
