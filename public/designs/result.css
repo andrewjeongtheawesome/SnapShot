@@ -155,6 +155,66 @@ sup {
     margin-bottom: 50px;
 }
 
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8); /* 어두운 배경 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.popup-content {
+    position: relative;
+    max-width: 90%; /* 화면 크기에 맞춰 최대 90%로 설정 */
+    max-height: 90%; /* 최대 높이도 90%로 설정 */
+    text-align: center;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    overflow-y: auto; /* Y축 스크롤 활성화 */
+}
+
+.rules-image {
+    width: 100%; /* 가로를 부모 요소에 맞춤 */
+    height: auto; /* 세로는 자동으로 설정 */
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3); /* 그림자 효과 */
+}
+
+
+.confirm-btn {
+    display: block;
+    font-family: 'Noto Sans KR', sans-serif;
+    margin: 20px auto 0; /* 중앙 정렬 */
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #78a0eb; /* 버튼 배경색 */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.confirm-btn:hover {
+    background-color: #2600ff; /* 호버시 배경색 변경 */
+}
+
+/* 확인 버튼이 보이도록 설정 */
+@media screen and (max-height: 600px) {
+    .confirm-btn {
+        position: fixed;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
+}
+
 /* 미디어 쿼리를 통한 반응형 디자인 */
 @media (max-width: 768px) {
     .container {

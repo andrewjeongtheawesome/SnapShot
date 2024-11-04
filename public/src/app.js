@@ -47,7 +47,6 @@ function startPhaserGame() {
     new Phaser.Game(config);
 }
 
-
 function preload() {
     this.load.audio('pull', 'sounds/pull.mp3');  // 새총을 당길 때
     this.load.audio('release', 'sounds/release.mp3');  // 새총을 놓을 때
@@ -242,36 +241,63 @@ async function updateHasPlayed(studentId) {
 function update() {
     if (gameOver) return;  // 게임 종료 시 더 이상 업데이트 하지 않음
     // 병뚜껑이 발사된 후에만 실시간으로 현재 병뚜껑과 결승선 간의 거리를 계산
-    // 병뚜껑이 발사된 후에만 실시간으로 현재 병뚜껑과 결승선 간의 거리를 계산
     if (!isDragging && bottleCap.body.velocity.length() > 0) {
         let currentDistance = Math.abs(bottleCap.y - finishLineY);
         document.getElementById('current-distance').innerText = `${currentDistance.toFixed(5)} cm`;
-
-        // 병뚜껑의 속도에 따라 회전 속도를 서서히 줄임
-        let velocityMagnitude = bottleCap.body.velocity.length();  // 병뚜껑의 속도 크기
-        let angularVelocity = bottleCap.body.angularVelocity;  // 병뚜껑의 회전 속도
-
-        // 병뚜껑이 충분히 느려지고 멈췄는지 감지
+    
+        // 병뚜껑의 속도와 회전 속도 측정
+        let velocityMagnitude = bottleCap.body.velocity.length();
+        let angularVelocity = bottleCap.body.angularVelocity;
+    
+        // 병뚜껑이 충분히 느려졌다면 정지로 간주
         if (velocityMagnitude < 5 && Math.abs(angularVelocity) < 5 && !isBottleCapStopped) {
             isBottleCapStopped = true;
-            endSound.play();  // 병뚜껑이 멈췄을 때 소리 재생
-
-            // 2초 후에 다음 턴으로 넘어가는 타이머 설정
+            bottleCap.body.setVelocity(0, 0);  // 정지 시 속도 0으로 고정
+            bottleCap.setAngularVelocity(0);  // 회전 속도도 0으로 고정
+            endSound.play();
+    
+            // 병뚜껑이 멈춘 후 2초 대기 후 다음 턴으로
             setTimeout(() => {
-                handleBottleCapAction();  // 병뚜껑이 멈춘 후 기록 갱신 및 처리
+                handleBottleCapAction();
                 if (triesLeft <= 0) {
-                    endGame();  // 남은 병뚜껑이 없으면 게임 종료
+                    endGame();
                 }
-            }, 1000);  // 1초 대기 후 다음 턴으로 넘어감
-        }
-
-        // 병뚜껑이 이동 중일 때 서서히 회전 속도를 줄임
-        if (velocityMagnitude > 5) {
-            bottleCap.setAngularVelocity(angularVelocity * 0.99);  // 회전 속도를 서서히 줄임
-        } else {
-            bottleCap.setAngularVelocity(0);  // 속도가 매우 느리면 회전을 완전히 멈춤
+            }, 1000);  // 1초 대기 후 턴 전환
+        } else if (velocityMagnitude > 5) {
+            // 병뚜껑이 이동 중일 때만 회전 속도를 점진적으로 줄임
+            bottleCap.setAngularVelocity(angularVelocity * 0.99);
         }
     }
+    
+    // if (!isDragging && bottleCap.body.velocity.length() > 0) {
+    //     let currentDistance = Math.abs(bottleCap.y - finishLineY);
+    //     document.getElementById('current-distance').innerText = `${currentDistance.toFixed(5)} cm`;
+
+    //     // 병뚜껑의 속도에 따라 회전 속도를 서서히 줄임
+    //     let velocityMagnitude = bottleCap.body.velocity.length();  // 병뚜껑의 속도 크기
+    //     let angularVelocity = bottleCap.body.angularVelocity;  // 병뚜껑의 회전 속도
+
+    //     // 병뚜껑이 충분히 느려지고 멈췄는지 감지
+    //     if (velocityMagnitude < 5 && Math.abs(angularVelocity) < 5 && !isBottleCapStopped) {
+    //         isBottleCapStopped = true;
+    //         endSound.play();  // 병뚜껑이 멈췄을 때 소리 재생
+
+    //         // 2초 후에 다음 턴으로 넘어가는 타이머 설정
+    //         setTimeout(() => {
+    //             handleBottleCapAction();  // 병뚜껑이 멈춘 후 기록 갱신 및 처리
+    //             if (triesLeft <= 0) {
+    //                 endGame();  // 남은 병뚜껑이 없으면 게임 종료
+    //             }
+    //         }, 1000);  // 1초 대기 후 다음 턴으로 넘어감
+    //     }
+
+    //     // 병뚜껑이 이동 중일 때 서서히 회전 속도를 줄임
+    //     if (velocityMagnitude > 5) {
+    //         bottleCap.setAngularVelocity(angularVelocity * 0.99);  // 회전 속도를 서서히 줄임
+    //     } else {
+    //         bottleCap.setAngularVelocity(0);  // 속도가 매우 느리면 회전을 완전히 멈춤
+    //     }
+    // }
 
     // A 부분의 안전 영역 범위 설정 (X 좌표와 Y 좌표 범위 지정)
     let safeZoneX1 = 150; // A 부분의 왼쪽 X 좌표
